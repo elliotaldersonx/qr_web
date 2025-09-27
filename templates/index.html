@@ -2,92 +2,203 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>QR Code Generator</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { font-family: system-ui, Arial; padding: 24px; max-width: 760px; margin: auto; }
-    input[type="text"]{ width: 70%; padding: 8px; }
-    button { padding: 8px 12px; margin-left: 6px; }
-    .row { margin-top: 12px; }
-    #preview { display:block; margin-top: 12px; max-width: 320px; border: 1px solid #ddd; padding: 6px; }
-    #savedInfo { margin-top: 12px; background:#f6f6f6; padding:10px; border-radius:6px; }
-  </style>
+    <meta charset="utf-8" />
+    <title>QR Code Generator</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, Arial;
+            padding: 24px;
+            max-width: 760px;
+            margin: auto;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header-container h1 {
+            margin: 0;
+        }
+        
+        .author-link {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 4px 8px;
+            background: #333;
+            border-radius: 4px;
+            transition: all 0.2s;
+            animation: glowText 2s infinite;
+        }
+        
+        .author-link:hover {
+            background: #5865f2;
+            color: white;
+            text-decoration: none;
+        }
+        
+        @keyframes glowText {
+            0%, 75%, 100% {
+                color: #ccc;
+                text-shadow: none;
+            }
+            50% {
+                color: #60a5fa;
+                text-shadow: 0 0 8px #60a5fa, 0 0 12px #60a5fa;
+            }
+        }
+        
+        input[type="text"] {
+            width: 70%;
+            padding: 8px;
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 8px 12px;
+            margin-left: 6px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #555;
+        }
+        
+        .row {
+            margin-top: 12px;
+        }
+        
+        .save-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 8px;
+        }
+        
+        .save-gif {
+            width: 20px;
+            height: 20px;
+        }
+        
+        #preview {
+            display: block;
+            margin-top: 12px;
+            max-width: 320px;
+            border: 1px solid #ddd;
+            padding: 6px;
+        }
+        
+        #savedInfo {
+            margin-top: 12px;
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+    </style>
 </head>
 <body>
-  <h1>QR Code Generator</h1>
+    <div class="header-container">
+        <h1>QR Code Generator</h1>
+        <a href="https://discord.gg/ERmducCwvK" target="_blank" class="author-link">by <span class="glow-text">cyn</span></a>
+    </div>
+    
+    <form id="form">
+        <input id="qr_text" name="qr_text" type="text" placeholder="Enter text or URL" required />
+        <div class="save-container">
+            <input id="save" type="checkbox" name="save">
+            <label for="save">Save on server</label>
+            <img src="https://media.tenor.com/9RJOagqZRBIAAAAi/monkey-thinking.gif" alt="save" class="save-gif" onerror="this.style.display='none'">
+        </div>
+        <button type="submit">Generate</button>
+    </form>
+    
+    <img id="preview" alt="QR preview" style="display:none;" />
+    
+    <div id="savedInfo" style="display:none;">
+        <p id="savedPath"></p>
+        <button id="openFolder">Open folder</button>
+        <a id="downloadLink" href="#" download style="margin-left:10px;">Download</a>
+    </div>
 
-  <form id="form">
-    <input id="qr_text" name="qr_text" type="text" placeholder="Enter text or URL" required />
-    <label style="margin-left:8px;"><input id="save" type="checkbox" name="save"> Save on server</label>
-    <button type="submit">Generate</button>
-  </form>
+    <script>
+        const form = document.getElementById("form");
+        const preview = document.getElementById("preview");
+        const savedInfo = document.getElementById("savedInfo");
+        const savedPath = document.getElementById("savedPath");
+        const openFolderBtn = document.getElementById("openFolder");
+        const downloadLink = document.getElementById("downloadLink");
 
-  <img id="preview" alt="QR preview" style="display:none;" />
+        form.addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            savedInfo.style.display = "none";
+            preview.style.display = "none";
 
-  <div id="savedInfo" style="display:none;">
-    <p id="savedPath"></p>
-    <button id="openFolder">Open folder</button>
-    <a id="downloadLink" href="#" download style="margin-left:10px;">Download</a>
-  </div>
+            const fd = new FormData(form);
+            // ensure `save` has either 'true' or 'false'
+            fd.set("save", document.getElementById("save").checked ? "true" : "false");
 
-  <script>
-    const form = document.getElementById("form");
-    const preview = document.getElementById("preview");
-    const savedInfo = document.getElementById("savedInfo");
-    const savedPath = document.getElementById("savedPath");
-    const openFolderBtn = document.getElementById("openFolder");
-    const downloadLink = document.getElementById("downloadLink");
+            const res = await fetch("/generate", {
+                method: "POST",
+                body: fd
+            });
 
-    form.addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      savedInfo.style.display = "none";
-      preview.style.display = "none";
+            const ct = res.headers.get("content-type") || "";
+            if (ct.includes("application/json")) {
+                const j = await res.json();
+                if (j.error) {
+                    alert("Error: " + j.error);
+                    return;
+                }
+                // show preview from saved URL and saved path
+                preview.src = j.url;
+                preview.style.display = "block";
+                savedInfo.style.display = "block";
+                savedPath.textContent = "Saved to: " + j.path;
+                openFolderBtn.dataset.path = j.path;
+                downloadLink.href = j.url;
+            } else if (ct.includes("image/png")) {
+                // direct image blob returned
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                preview.src = url;
+                preview.style.display = "block";
+                downloadLink.href = url;
+                savedInfo.style.display = "block";
+                savedPath.textContent = "Preview (not saved to server)";
+                openFolderBtn.dataset.path = "";
+            } else {
+                const text = await res.text();
+                alert("Unexpected response: " + text);
+            }
+        });
 
-      const fd = new FormData(form);
-      // ensure `save` has either 'true' or 'false'
-      fd.set("save", document.getElementById("save").checked ? "true" : "false");
+        openFolderBtn.addEventListener("click", async () => {
+            const path = openFolderBtn.dataset.path;
+            if (!path) return alert("No saved file path available.");
 
-      const res = await fetch("/generate", { method: "POST", body: fd });
-      const ct = res.headers.get("content-type") || "";
+            const res = await fetch("/open_folder", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ path })
+            });
 
-      if (ct.includes("application/json")) {
-        const j = await res.json();
-        if (j.error) { alert("Error: " + j.error); return; }
-        // show preview from saved URL and saved path
-        preview.src = j.url;
-        preview.style.display = "block";
-        savedInfo.style.display = "block";
-        savedPath.textContent = "Saved to: " + j.path;
-        openFolderBtn.dataset.path = j.path;
-        downloadLink.href = j.url;
-      } else if (ct.includes("image/png")) {
-        // direct image blob returned
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        preview.src = url;
-        preview.style.display = "block";
-        downloadLink.href = url;
-        savedInfo.style.display = "block";
-        savedPath.textContent = "Preview (not saved to server)";
-        openFolderBtn.dataset.path = "";
-      } else {
-        const text = await res.text();
-        alert("Unexpected response: " + text);
-      }
-    });
-
-    openFolderBtn.addEventListener("click", async () => {
-      const path = openFolderBtn.dataset.path;
-      if (!path) return alert("No saved file path available.");
-      const res = await fetch("/open_folder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path })
-      });
-      const j = await res.json();
-      if (j.error) alert("Could not open folder: " + j.error);
-    });
-  </script>
+            const j = await res.json();
+            if (j.error) alert("Could not open folder: " + j.error);
+        });
+    </script>
 </body>
 </html>
