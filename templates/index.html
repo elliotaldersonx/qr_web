@@ -1,0 +1,93 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>QR Code Generator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial; padding: 24px; max-width: 760px; margin: auto; }
+    input[type="text"]{ width: 70%; padding: 8px; }
+    button { padding: 8px 12px; margin-left: 6px; }
+    .row { margin-top: 12px; }
+    #preview { display:block; margin-top: 12px; max-width: 320px; border: 1px solid #ddd; padding: 6px; }
+    #savedInfo { margin-top: 12px; background:#f6f6f6; padding:10px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1>QR Code Generator</h1>
+
+  <form id="form">
+    <input id="qr_text" name="qr_text" type="text" placeholder="Enter text or URL" required />
+    <label style="margin-left:8px;"><input id="save" type="checkbox" name="save"> Save on server</label>
+    <button type="submit">Generate</button>
+  </form>
+
+  <img id="preview" alt="QR preview" style="display:none;" />
+
+  <div id="savedInfo" style="display:none;">
+    <p id="savedPath"></p>
+    <button id="openFolder">Open folder</button>
+    <a id="downloadLink" href="#" download style="margin-left:10px;">Download</a>
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const preview = document.getElementById("preview");
+    const savedInfo = document.getElementById("savedInfo");
+    const savedPath = document.getElementById("savedPath");
+    const openFolderBtn = document.getElementById("openFolder");
+    const downloadLink = document.getElementById("downloadLink");
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      savedInfo.style.display = "none";
+      preview.style.display = "none";
+
+      const fd = new FormData(form);
+      // ensure `save` has either 'true' or 'false'
+      fd.set("save", document.getElementById("save").checked ? "true" : "false");
+
+      const res = await fetch("/generate", { method: "POST", body: fd });
+      const ct = res.headers.get("content-type") || "";
+
+      if (ct.includes("application/json")) {
+        const j = await res.json();
+        if (j.error) { alert("Error: " + j.error); return; }
+        // show preview from saved URL and saved path
+        preview.src = j.url;
+        preview.style.display = "block";
+        savedInfo.style.display = "block";
+        savedPath.textContent = "Saved to: " + j.path;
+        openFolderBtn.dataset.path = j.path;
+        downloadLink.href = j.url;
+      } else if (ct.includes("image/png")) {
+        // direct image blob returned
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        preview.src = url;
+        preview.style.display = "block";
+        downloadLink.href = url;
+        savedInfo.style.display = "block";
+        savedPath.textContent = "Preview (not saved to server)";
+        openFolderBtn.dataset.path = "";
+      } else {
+        const text = await res.text();
+        alert("Unexpected response: " + text);
+      }
+    });
+
+    openFolderBtn.addEventListener("click", async () => {
+      const path = openFolderBtn.dataset.path;
+      if (!path) return alert("No saved file path available.");
+      const res = await fetch("/open_folder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path })
+      });
+      const j = await res.json();
+      if (j.error) alert("Could not open folder: " + j.error);
+    });
+  </script>
+</body>
+</html>
