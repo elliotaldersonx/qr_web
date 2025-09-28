@@ -26,6 +26,21 @@
             margin: 0;
         }
         
+        .tech-info {
+            color: #888;
+            font-size: 12px;
+            margin-left: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .discord-gif {
+            height: 1.2em;
+            width: auto;
+            border-radius: 3px;
+        }
+        
         .author-link {
             color: #ccc;
             text-decoration: none;
@@ -88,11 +103,6 @@
             margin-left: 8px;
         }
         
-        .save-gif {
-            width: 20px;
-            height: 20px;
-        }
-        
         #preview {
             display: block;
             margin-top: 12px;
@@ -108,12 +118,31 @@
             border-radius: 6px;
             border: 1px solid #444;
         }
+        
+        #downloadLink {
+            background: white;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin-left: 10px;
+        }
+        
+        #downloadLink:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
     </style>
 </head>
 <body>
     <div class="header-container">
         <h1>QR Code Generator</h1>
         <a href="https://discord.gg/ERmducCwvK" target="_blank" class="author-link">by <span class="glow-text">cyn</span></a>
+        <span class="tech-info">
+            made with .py and .html
+            <img src="https://media.tenor.com/SyB8wXL2MWQAAAAC/kurisu-makise-kurisu.gif" alt="discord gif" class="discord-gif" onerror="this.style.display='none'">
+        </span>
     </div>
     
     <form id="form">
@@ -121,7 +150,6 @@
         <div class="save-container">
             <input id="save" type="checkbox" name="save">
             <label for="save">Save on server</label>
-            <img src="https://media.tenor.com/9RJOagqZRBIAAAAi/monkey-thinking.gif" alt="save" class="save-gif" onerror="this.style.display='none'">
         </div>
         <button type="submit">Generate</button>
     </form>
