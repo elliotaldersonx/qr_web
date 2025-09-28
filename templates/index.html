@@ -22,7 +22,7 @@
             overflow-x: hidden;
         }
         
-        /* Animated background particles */
+        /* animated put dito */
         body::before {
             content: '';
             position: fixed;
@@ -451,7 +451,7 @@
             border-color: #60a5fa;
         }
         
-        /* Mobile responsiveness */
+        /* mobile res */
         @media (max-width: 768px) {
             .header-container {
                 flex-direction: column;
@@ -477,7 +477,7 @@
             }
         }
         
-        /* Smooth scrolling and enhanced focus */
+        /* smooth scroll behaviour */
         html {
             scroll-behavior: smooth;
         }
@@ -538,7 +538,7 @@
         form.addEventListener("submit", async (ev) => {
             ev.preventDefault();
             
-            // Add loading state
+            // loading state
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = '⟳ Generating...';
@@ -566,7 +566,7 @@
                     preview.src = j.url;
                     preview.style.display = "block";
                     savedInfo.style.display = "block";
-                    savedPath.textContent = "✅ Saved to: " + j.path;
+                    savedPath.textContent = "Saved to: " + j.path;
                     openFolderBtn.dataset.path = j.path;
                     downloadLink.href = j.url;
                 } else if (ct.includes("image/png")) {
@@ -585,7 +585,7 @@
             } catch (error) {
                 alert("Network error: " + error.message);
             } finally {
-                // Reset button state
+                // reset button state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
@@ -605,9 +605,9 @@
             if (j.error) alert("Could not open folder: " + j.error);
         });
 
-        // Add some interactive feedback
+        // interactive feedback put here
         document.addEventListener('DOMContentLoaded', () => {
-            // Add ripple effect to buttons
+            // ripple effect
             const buttons = document.querySelectorAll('button, .author-link');
             buttons.forEach(button => {
                 button.addEventListener('click', function(e) {
