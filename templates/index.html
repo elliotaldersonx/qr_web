@@ -122,6 +122,30 @@
             filter: drop-shadow(0 4px 16px rgba(96, 165, 250, 0.4));
         }
         
+        .github-icon {
+            height: 4.8em;
+            width: 4.8em;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: softGlow 3s ease-in-out infinite alternate;
+        }
+        
+        .github-icon:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+        }
+        
+        @keyframes softGlow {
+            0% { 
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)); 
+            }
+            100% { 
+                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5)); 
+            }
+        }
+        
         .author-link {
             color: #ddd;
             text-decoration: none;
@@ -472,6 +496,9 @@
             made with <span class="file-extension">.py</span> and <span class="file-extension">.html</span>
             <img src="/static/steins-gate-sticker.png" alt="steins gate sticker" class="discord-gif" onerror="this.style.display='none'">
             <img src="/static/steins-gate-divergence-meter.gif" alt="divergence meter" class="discord-gif" onerror="this.style.display='none'">
+            <a href="https://github.com/elliotaldersonx" target="_blank">
+                <img src="/static/github_1.png" alt="github profile" class="github-icon" onerror="this.style.display='none'">
+            </a>
         </span>
     </div>
     
@@ -549,7 +576,7 @@
                     preview.style.display = "block";
                     downloadLink.href = url;
                     savedInfo.style.display = "block";
-                    savedPath.textContent = "👀 Preview (not saved to server)";
+                    savedPath.textContent = "► Preview (not saved to server)";
                     openFolderBtn.dataset.path = "";
                 } else {
                     const text = await res.text();
