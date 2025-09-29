@@ -15,8 +15,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SAVE_DIR = os.path.join(BASE_DIR, "saved_qrcodes")
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-
-# Reusable QR function (same behaviour as your CLI/Tk version)
+# reuse QR func behaviour as CLI/TK version
 def qr_image(text, box_size=10, border=4, fill="black", back="white"):
     qr = qrcode.QRCode(
         version=None,
@@ -40,7 +39,7 @@ def generate():
     POST form fields:
       - qr_text: string (required)
       - save: 'true' or 'false' (optional)
-    Behaviour:
+    behavior:
       - if save == 'true' -> save file to saved_qrcodes and return JSON with 'path' and 'url'
       - otherwise -> return the PNG image bytes directly (image/png)
     """
@@ -56,7 +55,7 @@ def generate():
     buffer.seek(0)
 
     if save_flag:
-        # create unique filename
+        # create filename
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         fname = secure_filename(f"qrcode_{ts}.png")
         filepath = os.path.join(SAVE_DIR, fname)
@@ -72,7 +71,7 @@ def generate():
 
 @app.route("/qrcodes/<filename>")
 def serve_qrcode(filename):
-    # serve saved files so the browser can show/download them
+    # serve storing database
     return send_from_directory(SAVE_DIR, filename, as_attachment=False)
 
 
@@ -88,7 +87,7 @@ def open_folder():
         return jsonify({"error": "missing path"}), 400
 
     path = os.path.abspath(path)
-    # Basic safety: only allow opening folders under our SAVE_DIR
+    # only allow opening folders in SAVE_DIR
     if not path.startswith(SAVE_DIR):
         return jsonify({"error": "path not allowed"}), 403
 
@@ -106,5 +105,5 @@ def open_folder():
 
 
 if __name__ == "__main__":
-    # debug=True is convenient for local development
+    # debug=True
     app.run(debug=True)
